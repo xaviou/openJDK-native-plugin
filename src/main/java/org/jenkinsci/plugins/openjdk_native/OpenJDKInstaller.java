@@ -17,6 +17,23 @@ import java.nio.charset.Charset;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
+/**
+ * Auto-installer of native OpenJDK packages for RedHat-like distors
+ * Switch to required OpenJDK version via Linux alternatives. If required OpenJDK is not installed, try to install it via yum.
+ * 
+ * Alternatives and yum are run via sudo, therefore appropriate sudoers setup is requited (including switching off tty requirement). 
+ * Example setup:
+ * <pre>
+ *  #Defaults    requiretty
+ *  User_Alias JENKINS = test
+ *  Cmnd_Alias OPENJDK = /usr/sbin/alternatives, /usr/bin/yum
+ *  JENKINS ALL = NOPASSWD: OPENJDK
+ * </pre>
+ * 
+ * @author vjuranek
+ *
+ */
+
 public class OpenJDKInstaller extends ToolInstaller{
 
     public final String OPENJDK_HOME_PREFIX = "/usr/lib/jvm/";
@@ -47,7 +64,7 @@ public class OpenJDKInstaller extends ToolInstaller{
         Launcher l = node.createLauncher(log);
         try{
             PrintStream output = log.getLogger();
-            int exitStatus  = l.launch().cmds("alternatives", "--set", "java", OPENJDK_HOME_PREFIX + openjdkPackage.getPackageName() + OPENJDK_HOME_BIN).stdout(output).join();
+            int exitStatus  = l.launch().cmds("sudo", "alternatives", "--set", "java", OPENJDK_HOME_PREFIX + openjdkPackage.getJreName() + OPENJDK_HOME_BIN).stdout(output).join();
             if(exitStatus != 0){
                 OpenJDKConsoleAnnotator annotator = new OpenJDKConsoleAnnotator(log.getLogger());
                 byte[] errMsg = ("[OpenJDK ERROR] Switching OpenJDK via atlernatives to " + openjdkPackage.getPackageName() + " failed! " + OPENJDK_BIN + " may not exists or point to different java version!\n").getBytes(Charset.defaultCharset());
@@ -86,7 +103,7 @@ public class OpenJDKInstaller extends ToolInstaller{
         Launcher l = node.createLauncher(log);
         try{
             PrintStream output = log.getLogger();
-            int exitStatus  = l.launch().cmds("yum", "-y", "install", openjdkPackage.getPackageName()).stdout(output).join();
+            int exitStatus  = l.launch().cmds("sudo", "yum", "-y", "install", openjdkPackage.getPackageName()).stdout(output).join();
             if(exitStatus != 0){
                 OpenJDKConsoleAnnotator annotator = new OpenJDKConsoleAnnotator(log.getLogger());
                 byte[] errMsg = ("[OpenJDK ERROR] Installation of " + openjdkPackage.getPackageName() + " failed!").getBytes(Charset.defaultCharset());
@@ -124,8 +141,7 @@ public class OpenJDKInstaller extends ToolInstaller{
     
     public enum OpenJDKPackage {
         openJDK7("openJDK7","java-1.7.0-openjdk"),
-        openJDK6("openJDK6","java-1.6.0-openjdk"),
-        openJDK6_JRE("openJDK6_JRE","jre-1.6.0-openjdk");
+        openJDK6("openJDK6","java-1.6.0-openjdk");
         
         private final String name;
         private final String packageName;
@@ -141,6 +157,10 @@ public class OpenJDKInstaller extends ToolInstaller{
         
         public String getPackageName(){
             return packageName;
+        }
+        
+        public String getJreName(){
+            return packageName.replaceFirst("java", "jre");
         }
     }
 }

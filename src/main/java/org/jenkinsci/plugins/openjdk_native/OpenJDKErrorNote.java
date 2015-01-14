@@ -5,11 +5,12 @@ import hudson.MarkupText;
 import hudson.console.ConsoleAnnotationDescriptor;
 import hudson.console.ConsoleAnnotator;
 import hudson.console.ConsoleNote;
+import hudson.model.Run;
 
-public class OpenJDKErrorNote extends ConsoleNote {
+public class OpenJDKErrorNote extends ConsoleNote<Run<?,?>> {
     
     @Override
-    public ConsoleAnnotator annotate(Object context, MarkupText text, int charPos){
+    public ConsoleAnnotator<Run<?,?>> annotate(Run<?,?> context, MarkupText text, int charPos){
         if(text.getText().contains("ERROR"))
             text.addMarkup(0,text.length(),"<span style=\"font-weight: bold; color:red\">","</span>");
         return null;
@@ -21,5 +22,7 @@ public class OpenJDKErrorNote extends ConsoleNote {
             return "OpenJDK installer errors";
         }
     }
+    
+    private static final long serialVersionUID = 1L;
 
 }

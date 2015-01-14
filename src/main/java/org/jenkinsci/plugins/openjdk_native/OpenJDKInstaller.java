@@ -36,9 +36,10 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public class OpenJDKInstaller extends ToolInstaller{
 
-    public final String OPENJDK_HOME_PREFIX = "/usr/lib/jvm/";
-    public final String OPENJDK_HOME_BIN = "/bin/java";
-    public final String OPENJDK_BIN = "/usr/bin";
+    public static final String OPENJDK_HOME_PREFIX = "/usr/lib/jvm/";
+    public static final String OPENJDK_HOME_BIN = "/bin/java";
+    public static final String OPENJDK_BIN = "/usr/bin";
+    
     public final OpenJDKPackage openjdkPackage; 
     
     @DataBoundConstructor
@@ -120,7 +121,7 @@ public class OpenJDKInstaller extends ToolInstaller{
     public static class DescriptorImpl extends ToolInstallerDescriptor<OpenJDKInstaller> {
 
         public String getDisplayName() {
-            return "OpenJDK installer"; //Messages.CommandInstaller_DescriptorImpl_displayName();
+            return "OpenJDK installer";
         }
 
         @Override

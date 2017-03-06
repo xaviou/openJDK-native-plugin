@@ -38,7 +38,7 @@ public class OpenJDKInstaller extends ToolInstaller{
 
     public static final String OPENJDK_HOME_PREFIX = "/usr/lib/jvm/";
     public static final String OPENJDK_HOME_BIN = "/bin/java";
-    public static final String OPENJDK_BIN = "/usr/bin";
+    public static final String OPENJDK_BIN = "/usr"; // Otherwise looks for /usr/bin/bin/java
     
     public final OpenJDKPackage openjdkPackage; 
     
@@ -56,7 +56,7 @@ public class OpenJDKInstaller extends ToolInstaller{
         boolean installed = isInstalled(node, log, openjdkPackage);
         if(!installed)
             installViaYum(node, log);
-        switchAlternatives(node, log);
+        // switchAlternatives(node, log); Doesn't work for all chkconfig (17.7.2-1 on CentOS 7 and 1.3.49.3 on CentOS 6)
         return new FilePath(node.getChannel(), OPENJDK_BIN);  //if local (on master), channel is null
     }
     
